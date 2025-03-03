@@ -1,0 +1,139 @@
+/* some flex declarations may be unneccesary */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: 'Open Sans', sans-serif;
+    background-color: #F5F5F5;
+    
+}
+
+header{
+    height:100px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+header ul{
+    display:flex;
+    list-style-type: none;
+
+}
+
+header ul li a{
+    padding:0 20px;
+    text-decoration: none;
+    color:#3a3a3a;
+    display: inline-block;
+}
+
+/* on hover effect that creates a short moving bar */
+header li a::after{
+    content: '';
+    display: block;
+    height:4px;
+    width: 0;
+    background: #c4c4f7;
+    transition: .5s
+}
+
+header li a:hover::after{
+    width:100%;
+}
+
+main{
+    display: flex;
+    height: calc(100vh - 100px);
+    align-items: center;
+    justify-content: center;
+}
+
+.toc{
+    list-style-type: none;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.toc li {
+list-style-type: none;
+text-decoration: none;
+display: flex;
+align-items: center;
+justify-content: center;
+height: 50px;
+}
+
+.hero-img{
+    max-width:670px;
+    height:auto;
+}
+.content-left{
+    width: 30%;
+}
+main h1{
+    font-size: 54px;
+    color: #133b4f;
+    
+}
+main h2{
+    font-size: 25px;
+    color: #34404b;
+    font-weight: 400;
+    letter-spacing: 8px;
+}
+
+main p{
+    font-size: 14px;
+    font-weight: 400;
+    color: #333;
+    line-height: 31.5px;
+    margin: 30px 0;
+}
+
+main ul{
+    font-size: 14px;
+    font-weight: 400;
+    color: #333;
+    text-decoration: none;
+    list-style-type: none;
+}
+main ul li a{
+    
+    text-decoration: none;
+}
+main ul li a:hover{
+    background-color: #c4c4f7;
+    color: cornsilk;
+}
+main table th{
+    font-size: 18px;
+}
+main table{
+    
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-size: 14px;
+    font-weight: 400;
+    color: #333;
+    line-height: 31.5px;
+    margin: 30px 0;
+}
+main table a{
+    list-style-type: none;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+td {
+    padding: 10px 0
+}
