@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>HTML</title>
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap" rel="stylesheet">
+        <script src = "./js/script.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <div class="logo">
+                <a href="index.html"><img src="./img/Logoo.png" alt="Logo" width="50px"></a>
+            </div>
+
+            <nav class="navbar">
+                <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="history.html">History</a></li>
+                <li><a href="info.html">Research</a></li>
+                <li><a href="references.html">Resources</a></li>
+                <li><a href="quiz.html">Quiz!</a></li>                    
+                </ul>
+            </nav>
+        </header>
+            <main>
+                <div class="quiz-box">
+                    <h1>Quiz</h1>
+                    <!-- Quiz form with multiple choice questions, button to submit -->
+                    <form id = "quiz" name = "quiz">
+                        <p>1). What year was HTML invented?</p>
+                        <input  type = "text" id = "textbox" name = "question1"> 
+
+                        <p>2). What scripting language can be used in conjuction with HTML to create interactive websites?</p>
+                        <input type = "radio" id = "mc" name = "question2" value = "SQL">SQL<br>
+                        <input type = "radio" id = "mc" name = "question2" value = "Microsoft Office">Mirosoft Office<br>
+                        <input type = "radio" id = "mc" name = "question2" value = "JavaScript">JavaScript<br>
+                        <input type = "radio" id = "mc" name = "question2" value = "Assembly">Assembly<br>
+
+                        <p>3). What is the current iteration of HTML</p>
+                        <input type = "radio" id = "mc" name = "question3" value = "HTML3">HTML3<br>
+                        <input type = "radio" id = "mc" name = "question3" value = "HTML5">HTML5<br>
+                        <input type = "radio" id = "mc" name = "question3" value = "HTML4">HTML4<br>
+                        <input type = "radio" id = "mc" name = "question3" value = "HTML6">HTML6<br>
+
+                        <p>4). Which of the following statements is true regarding HTML?</p>
+                        <input type = "checkbox" id = "mc" name = "question4" value = "HTML_is_not_case_sensetive">HTML is not case sensetive<br>
+                        <input type = "checkbox" id = "mc" name = "question4" value = "HTML_has_the_power_to_nest_elements_inside_of_other_elements">HTML has the power to nest elements inside of other elements<br>
+                        <input type = "checkbox" id = "mc" name = "question4" value = "HTML_is_a_programming_language">HTML is a programming language<br>
+                        <input type = "checkbox" id = "mc" name = "question4" value = "HTML_is_a_paid_subscription">HTML is a paid subscription<br>
+
+                        <p>5). Each HTML tag begins and ends with: </p>
+                        <input type = "radio" id = "mc" name = "question5" value = "Semi-colon">Semi-colon ;<br>
+                        <input type = "radio" id = "mc" name = "question5" value = "Parentheses">Parentheses ()<br>
+                        <input type = "radio" id = "mc" name = "question5" value = "Angle_brackets">Angle brackets <><br>
+                        <input type = "radio" id = "mc" name = "question5" value = "War">War<br>
+
+                        <input type = "button" id = "button" value = "Sumbit" onclick = "check();">
+
+                    </form>
+                    <!-- Post quiz information is provided here -->
+                    <div id = "after_submit">
+                        
+                        
+                        <p id = "number_correct"></p>
+                        
+                        <input type="button" id="restart" value="Retake Quiz" onclick="restartQuiz();">
+                        
+                    </div>  
+                </div>      
+            </main>  
+            <footer>
+                <p>&copy; Foster Thomas, Intro to Web Development Project Milestone 2</p>
+            </footer>
+    </body>
+</html>
