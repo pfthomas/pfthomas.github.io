@@ -25,7 +25,7 @@ function check(){
         review.push("3). The correct answer is 'HTML5'.");
     }
     //question 4
-    //There has got to be a better way to do this
+    
     let checkboxes = document.getElementsByName("question4");
     let checkedValues = [];
     
