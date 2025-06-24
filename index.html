@@ -1,62 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>HTML</title>
-        <link rel="stylesheet" href="css/main.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap" rel="stylesheet">
-    </head>
+<head>
+  <meta charset="UTF-8">
+  <title>Milestone 1</title>
+  <style>
+    body { font-family: 'Times New Roman', Times, serif, sans-serif; 
+    max-width: 800px; 
+    margin: auto; 
+    padding: 40px; 
+    background-color: #111111;
+    color: #ebe8e8
+    }
+    h1 { font-size: 2em; 
+        color: #e2e2e2; 
+    }
+    ul { 
+        line-height: 1.8em; 
+        color: #cccccc;
+    }
+    a { 
+        color: #85e0ec; 
+        text-decoration: none; 
+    }
+    a:hover { 
+        text-decoration: underline;
+        color: #e2e2e2 
+    }
+  </style>
+</head>
+<body>
+  <h1>Project Milestone #1: JSON</h1>
+  <p>Name: Foster Thomas</p>
+  <p>Description: This site will read data from Google Books API and display it cleanly on the webpage</p>
+  <p>Affiliation: Kennesaw State University</p>
+  <p>Course: IT 4403 -  <a href="http://ccse.kennesaw.edu/it" target="_blank">KSU IT Department</a></p>
 
-    <body>
-        <!-- nav bar and hamburger drop down -->
-        <header>
-            <div class="logo">
-                <a href="index.html"><img src="./img/Logoo.png" alt="Logo" width="50px"></a>
-            </div>
-        
-            <div class="menu-toggle" id="menu-toggle">
-                &#9776; 
-            </div>
-        
-            <nav class="navbar" id="navbar">
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="history.html">History</a></li>
-                    <li><a href="info.html">Research</a></li>
-                    <li><a href="references.html">Resources</a></li> 
-                    <li><a href="quiz.html">Quiz!</a></li>                   
-                </ul>
-            </nav>
-        </header>
-        
-            <main>
-                <div class="content-left">
-                    <h1>HyperText</h1>
-                    <h2>Markup Language</h2>
-                    <br><br>
-                    <h3>Table of Contents</h3>
-                        <ul class ="toc">
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="history.html">History</a></li>
-                        <li><a href="info.html">More Information</a></li>
-                        <li><a href="references.html">References</a></li>
-                        <li><a href="quiz.html">Quiz!</a></li>
-                        </ul>
-                    <p>HTML stands for HyperText Markup Language. This is a text based language that is a fundamental building block of modern webpages. The syntax and concept is a plaintext document structured with elements. Elements are surrounded by matching opening and closing tags. Each tag begins and ends with angle brackets (<>). 
-                    </p>
-                    
-                </div>
-                <div class="content-right">
-                    <img src="/img/What-is-HTML.jpg" alt="" class="hero-img">
-                </div>
-
-            </main>
-            <footer>
-                <p>&copy; Foster Thomas, Intro to Web Development Project Milestone 2</p>
-            </footer>
-    <script src = "./js/script.js"></script>
-    </body>
+  <h2>Table of Contents</h2>
+  <ul>
+    <li> Milestone 1
+        <ul>
+        <li><a href="milestone1Single.html">Display a Single Book with API</a></li>
+        <li><a href="milestone1List.html">Display List of Books with API</a></li>
+        </ul>
+    </li>
+    <li><a href="milestone3.html">Milestone 3</a></li>
+    <li><a href="milestone4.html">Milestone 4</a></li>
+  </ul>
+</body>
 </html>

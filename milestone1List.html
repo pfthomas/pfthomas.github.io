@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Milestone 1 Book List</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif, sans-serif;
+      margin: 30px;
+      background-color: #111111;
+      color: #ebe8e8
+    }
+    .book {
+      background: #111111;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      padding: 15px;
+      max-width: 700px;
+    }
+    img {
+      max-width: 100px;
+      margin-left: 20px;
+      height: auto;
+      display: block;
+    }
+    .book-title {
+      margin-top: 0;
+    }
+    a {
+      color: #85e0ec;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Milestone 1 Book List</h1>
+
+    <div id="book-list"></div>
+
+    
+  </div>
+  <p><a href="index.html">Return Home</a></p>
+
+  <script>
+    $(document).ready(function() {
+      const apiURL = "https://www.googleapis.com/books/v1/volumes?q=modern%20web";
+      
+      $.getJSON(apiURL, function(data) {
+        //pull list of books and store them in a variable to use, fallback with an empty array if it doesnt work.
+        const lob = data.items || [];
+
+        //checks if no books
+        if (lob.length === 0) {
+          $("#book-list").html("<p>There are no books.</p>");
+          return;
+        }
+        //clearing so I can then loop thru
+        $("#book-list").empty();
+
+        //loop to go thru each book in the list
+        lob.forEach(function(book) {
+          
+          //these do the same as in the single book page, appending the JSON values to the variables, so we can create the HTML to append to the page with jQuery
+          const bookInfo = book.volumeInfo;
+
+          let title = bookInfo.title || "No Title";
+
+          let authors = "Unknown";
+          if (bookInfo.authors && bookInfo.authors.length > 0) {
+            authors = bookInfo.authors.join(", ");
+          }
+
+          let image = "";
+          if (bookInfo.imageLinks && bookInfo.imageLinks.thumbnail) {
+            image = bookInfo.imageLinks.thumbnail;
+          }
+
+          let link = bookInfo.previewLink || "#";
+          
+          //make html and append to booklist id
+          const booklistHTML = `
+            <div class="book">
+              <h2 class="book-title">${title}</h2>
+              <img src="${image}" alt="cover">
+              <p>Authors: ${authors}</p>
+              <p><a href="${link}" target="_blank">Preview this book</a></p>
+            </div>
+          `;
+
+          $("#book-list").append(booklistHTML);
+        });
+      }).fail(function() {
+        $("#book-list").html("<p>Error</p>");
+      });
+    });
+  </script>
+</body>
+</html>
