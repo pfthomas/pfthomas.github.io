@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Milestone 1 Single Book Data</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body { font-family: "Segoe UI", "Helvetica Neue", sans-serif; 
+    max-width: 900px; 
+    margin: auto; 
+    padding: 40px; 
+    background-color: #121212;
+    color: #f0f0f0
+    }
+    .container {
+      background: #111111;
+      padding: 20px;
+      border: 2px solid #cfcfcf;
+      max-width: 750px;
+      margin: auto;
+    }
+    img {
+      max-width: 150px;
+      float: right;
+      margin-left: 20px;
+    }
+    a { 
+        color: #8ec6eb; 
+        text-decoration: none; 
+    }
+    a:hover { 
+        text-decoration: underline;
+        color: #e2e2e2 
+    }
+    h1 {
+        text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Book Details</h1>
+
+  <div class="container" id="book">
+  </div>
+
+  <p><a href="bookSearch.html">Book Search Main Menu</a></p>
+  <p><a href="index.html">Return Home</a></p>
+
+  <script>
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    $(document).ready(function() {
+        const bookId = getQueryParam('id');
+        const bookUrl = `https://www.googleapis.com/books/v1/volumes/${bookId}`;
+
+        $.getJSON(bookUrl, function(data) {
+            const book = data.volumeInfo;
+            const saleInfo = data.saleInfo;
+            // pulls title and adds "No Title" if does not exist.
+            let title = book.title || "No Title";
+        
+            //Sets base author value then checks api to add book author if it exists.
+            let authors = "Unknown";
+            if (book.authors) {
+                authors = book.authors.join(", ");
+            }
+            // pulls description, adds "No description available" if doesnt exist.
+            let description = book.description || "No description available.";
+
+            //Sets base image value then chacks api for the thumbnail within imagelinks
+            let image = "";
+            if (book.imageLinks && book.imageLinks.thumbnail) {
+                image = book.imageLinks.thumbnail;
+            }
+            let publisher = book.publisher || "Unknown Publisher";
+            let pageCount = "Unknown Page count"
+            if (book.pageCount) {
+                pageCount = `${book.pageCount} pages`;
+            }
+            let price = "Not sold";
+            if (saleInfo && saleInfo.saleability === "FOR_SALE" && saleInfo.listPrice) {
+                price = `$${saleInfo.listPrice.amount}`;
+            }
+
+            //checks for link to book in api call and then has a base link as a fallback
+            let link = book.previewLink || "#";
+            //create html to append to book id
+            $("#book").html(`
+            <h2>${title}</h2>
+            <img src="${image}" alt="Cover">
+            <p><strong><u>Authors</u></strong>: ${authors}</p>
+            <P><strong><u>Publisher</u></strong>: ${publisher}</p>
+            <p><strong><u>Pages</u></strong>: ${pageCount}</p>
+            <p><strong><u>Price</u></strong>: ${price}</p>
+            <p>${description}</p>
+            <p><a href="${link}" target="_blank">Preview this book</a></p>
+            `);
+      }).fail(function() {
+        $("#book").html("<p>Error</p>");
+      });
+    });
+  </script>
+</body>
+</html>
