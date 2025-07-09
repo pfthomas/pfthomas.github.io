@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Milestone 3</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+        max-width: 1000px;
+        margin: auto;
+        padding: 30px;
+        background-color: #121212;
+        color: #f0f0f0;
+      }
+
+      h1,
+      h2 {
+        color: #ffffff;
+        margin-top: 20px;
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        width: 300px;
+        border: none;
+        background: #222;
+        color: #f0f0f0;
+        font-size: 16px;
+        border-radius: 3px;
+      }
+
+      button {
+        padding: 10px 15px;
+        border: none;
+        background-color: #5e9165;
+        color: white;
+        font-size: 16px;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #8ace93;
+      }
+
+      .pagination-btn {
+        margin: 5px;
+        padding: 6px 12px;
+        background: #333;
+        color: #f0f0f0;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      .current-page {
+        border: 1px solid #8ace93;
+        border-radius: 3px;
+        font-weight: bold;
+      }
+
+      .book {
+        display: flex;
+        align-items: center;
+        background-color: #1c1c1c;
+        margin: 10px 0;
+        padding: 15px;
+        border: 1px solid #333;
+        cursor: pointer;
+      }
+
+      .book img {
+        width: 80px;
+        height: auto;
+        margin-right: 15px;
+        border-radius: 4px;
+      }
+
+      .search-area {
+        margin-bottom: 30px;
+      }
+
+      #book-details {
+        display: none;
+        background-color: #1a1a1a;
+        padding: 20px;
+        margin-top: 30px;
+        border: 1px solid #444;
+        border-radius: 4px;
+      }
+
+      #book-details img {
+        width: 100px;
+        float: right;
+        margin-left: 15px;
+      }
+
+      #book-details button {
+        background-color: #444;
+        color: #ccc;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+
+      a {
+        color: #8ec6eb;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Milestone 3: Book Search Ajax</h1>
+
+    <div class="search-area">
+      <input type="text" id="searchInput" placeholder="Search books" />
+      <button id="searchButton">Search</button>
+    </div>
+
+    <h2>Search Results</h2>
+    <div id="book-search"></div>
+    <div id="pagination"></div>
+
+    <h2>Book Details</h2>
+    <div id="book-details">
+      <p>Click a book to view details.</p>
+    </div>
+
+    <h2>Public Bookshelf</h2>
+    <div id="bookshelfResults"></div>
+
+    <script>
+      $(function () {
+        let listOfBooks = [];
+        const booksPerPage = 10;
+
+        function showBookList(number) {
+          const start = (number - 1) * booksPerPage;
+          const end = start + booksPerPage;
+          const displayedBooks = listOfBooks.slice(start, end);
+
+          $("#book-search").empty();
+          displayedBooks.forEach(function (book) {
+            const bookInfo = book.volumeInfo;
+            const title = bookInfo.title || "No Title";
+            const img = bookInfo.imageLinks?.thumbnail || "";
+            const id = book.id;
+
+            const booklistHTML = `
+            <div class="book" data-id="${id}">
+              <img src="${img}" alt="cover">
+              <div>${title}</div>
+            </div>
+          `;
+            $("#book-search").append(booklistHTML);
+          });
+        }
+
+        function displayPages() {
+          const totalPages = Math.ceil(listOfBooks.length / booksPerPage);
+          $("#pagination").empty();
+          for (let i = 1; i <= totalPages; i++) {
+            $("#pagination").append(
+              `<button class="pagination-btn" data-page="${i}">${i}</button>`
+            );
+          }
+          $(".pagination-btn").first().addClass("current-page");
+        }
+
+        function showBookDetails(bookId) {
+          $("#book-details").html("<p>Loading...</p>").show();
+
+          $.getJSON(
+            `https://www.googleapis.com/books/v1/volumes/${bookId}`,
+            function (data) {
+              const info = data.volumeInfo;
+              const sale = data.saleInfo;
+
+              const title = info.title || "No Title";
+              const authors = info.authors?.join(", ") || "Unknown";
+              const description =
+                info.description || "No description available.";
+              const img = info.imageLinks?.thumbnail || "";
+              const publisher = info.publisher || "Unknown Publisher";
+              const pageCount = info.pageCount
+                ? `${info.pageCount} pages`
+                : "Unknown";
+              const price =
+                sale?.saleability === "FOR_SALE" && sale?.listPrice
+                  ? `$${sale.listPrice.amount}`
+                  : "Not for sale";
+              const link = info.previewLink || "#";
+
+              const detailHTML = `
+            <div>
+              <img src="${img}" alt="cover">
+              <p><strong>Title:</strong> ${title}</p>
+              <p><strong>Authors:</strong> ${authors}</p>
+              <p><strong>Publisher:</strong> ${publisher}</p>
+              <p><strong>Pages:</strong> ${pageCount}</p>
+              <p><strong>Price:</strong> ${price}</p>
+              <p>${description}</p>
+              <p><a href="${link}" target="_blank">Preview Book</a></p>
+              <button id="close-details">Close</button>
+            </div>
+          `;
+
+              $("#book-details").html(detailHTML);
+            }
+          ).fail(function () {
+            $("#book-details").html("<p>Error loading book details.</p>");
+          });
+        }
+
+        // close detail page if its in the way
+        $("#book-details").on("click", "#close-details", function () {
+          $("#book-details").hide().empty();
+        });
+
+        // search for books
+        $("#searchButton").on("click", function () {
+          const searchTerm = $("#searchInput").val();
+          const baseURL = "https://www.googleapis.com/books/v1/volumes?q=";
+          if (!searchTerm) return;
+
+          const params = {
+            q: searchTerm,
+          };
+          const serviceURL = baseURL + $.param(params);
+          console.log("Constructed Service URL: ", serviceURL);
+          listOfBooks = [];
+
+          $("#book-search, #pagination").empty();
+          $("#book-details").hide().empty();
+
+          // 2 API calls for first 40 results and then next 10, by starting at the index after 40 in the next api call
+          $.getJSON(
+            `${serviceURL}&startIndex=0&maxResults=40`,
+            function (data40) {
+              const f40 = data40.items || [];
+
+              $.getJSON(
+                `${serviceURL}&startIndex=40&maxResults=10`,
+                function (data10) {
+                  const f10 = data10.items || [];
+                  listOfBooks = f40.concat(f10);
+
+                  if (listOfBooks.length === 0) {
+                    $("#book-search").html("<p>There are no books.</p>");
+                    return;
+                  }
+
+                  displayPages();
+                  showBookList(1);
+                }
+              ).fail(function () {
+                $("#book-search").html("<p>Error</p>");
+              });
+            }
+          ).fail(function () {
+            $("#book-search").html("<p>Error</p>");
+          });
+        });
+
+        // show search results and display the pagination
+        $("#pagination").on("click", ".pagination-btn", function () {
+          const page = parseInt($(this).data("page"));
+          $(".pagination-btn").removeClass("current-page");
+          $(this).addClass("current-page");
+          showBookList(page);
+        });
+
+        // show book details page when clicking on a book from the list
+        $("#book-search, #bookshelfResults").on("click", ".book", function () {
+          const bookId = $(this).data("id");
+          showBookDetails(bookId);
+        });
+
+        // public bookshelf placeholder api, same from milestone 2 while google fixes API functionality with public libraries
+        const apiURL = `https://www.googleapis.com/books/v1/volumes?q=tolkien`;
+        $.getJSON(apiURL, function (data) {
+          console.log("API call: ", data);
+          const bookshelf = data.items || [];
+
+          if (bookshelf.length === 0) {
+            $("#bookshelfResults").html("<p>There are no books.</p>");
+            return;
+          }
+          bookshelf.forEach(function (book) {
+            const info = book.volumeInfo;
+            const title = info.title || "No Title";
+            const img = info.imageLinks?.thumbnail || "";
+            const id = book.id;
+
+            const bookshelfHTML = `
+            <div class="book" data-id="${id}">
+              <img src="${img}" alt="cover">
+              <div>${title}</div>
+            </div>
+          `;
+            $("#bookshelfResults").append(bookshelfHTML);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

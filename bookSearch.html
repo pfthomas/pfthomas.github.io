@@ -1,56 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Milestone 1 Book List</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <style>
-    html, body {
-        height:100%;
+  <head>
+    <meta charset="UTF-8" />
+    <title>Milestone 1 Book List</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
         margin: 0;
         padding: 0;
         font-family: "Segoe UI", "Helvetica Neue", sans-serif;
         background-color: #121212;
-        color: #f0f0f0
-    }
-    h1 {
-        font-size: 32px; 
+        color: #f0f0f0;
+      }
+      h1 {
+        font-size: 32px;
         margin-bottom: 20px;
-        color: #ffffff; 
+        color: #ffffff;
         text-align: center;
-    }
-    h2 {
+      }
+      h2 {
         font-size: 20px;
         margin-top: 40px;
         margin-bottom: 15px;
         border-bottom: 1px solid #444;
         padding-bottom: 5px;
-        color: #cccccc
-    }
-    p {
+        color: #cccccc;
+      }
+      p {
         margin: 16px 0;
-    }
-    ul {
+      }
+      ul {
         list-style-type: none;
         padding-left: 0;
-    }
-    a { 
-        color: #8ec6eb; 
-        text-decoration: none; 
-    }
-    a:hover { 
+      }
+      a {
+        color: #8ec6eb;
+        text-decoration: none;
+      }
+      a:hover {
         text-decoration: underline;
-        color: #e2e2e2 
-    }
-    .search-area {
+        color: #e2e2e2;
+      }
+      .search-area {
         display: flex;
         justify-content: center;
         align-items: center;
         margin-bottom: 30px;
         gap: 8px;
         flex-wrap: wrap;
-    }
-    #searchInput {
+      }
+      #searchInput {
         padding: 10px 15px;
         width: 300px;
         border: none;
@@ -58,8 +59,8 @@
         font-size: 16px;
         background-color: #252525;
         color: #f0f0f0;
-    }
-    #searchButton {
+      }
+      #searchButton {
         padding: 10px 20px;
         border: none;
         border-radius: 2px;
@@ -67,96 +68,96 @@
         color: white;
         font-size: 16px;
         cursor: pointer;
-    }
-    #searchButton:hover {
+      }
+      #searchButton:hover {
         background-color: #8ace93;
-    }
-    #pagination {
+      }
+      #pagination {
         text-align: center;
-    }
-    #pagination label {
+      }
+      #pagination label {
         margin-right: 10px;
         cursor: pointer;
-    }
-    .return-home {
+      }
+      .return-home {
         margin-top: auto;
         padding: 20px 0;
         color: #888;
         text-align: center;
-    }
-    .wrapper {
+      }
+      .wrapper {
         display: flex;
         flex-direction: column;
         min-height: 100vh;
-    }
-    .container {
+      }
+      .container {
         flex: 1;
         padding-bottom: 20px;
         max-width: 900px;
         margin: auto;
-    }
-    .book {
+      }
+      .book {
         background-color: #1c1c1c;
         border: 1px solid #333;
         padding: 15px;
         margin-bottom: 20px;
         gap: 15px;
-    }
-    .book img {
+      }
+      .book img {
         width: 100px;
         height: auto;
         border-radius: 4px;
-    }
-  </style>
-</head>
-<body>
-  <div class="wrapper">
-    <div class="container">
-    <h1>Book Search Main Menu</h1>
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="container">
+        <h1>Book Search Main Menu</h1>
 
-    <div class="search-area">
-        <input type="text" id="searchInput" placeholder="Search...">
-        <button id="searchButton">Search</button>
-    </div>
-    
-    <div id="searchResults"></div>
-    <div id="book-list"></div>
-    
-    <div id="pagination" style="display: none;">
-        <label><input type="radio" name="page" value="1" checked>Page 1</label>
-        <label><input type="radio" name="page" value="2">Page 2</label>
-        <label><input type="radio" name="page" value="3">Page 3</label>
-        <label><input type="radio" name="page" value="4">Page 4</label>
-    </div>
-    
-    </div>
-  <p class="return-home"><a href="index.html">Return Home</a></p>
-  </div>
+        <div class="search-area">
+          <input type="text" id="searchInput" placeholder="Search..." />
+          <button id="searchButton">Search</button>
+        </div>
 
-  <script>
-    $(document).ready(function() {
+        <div id="searchResults"></div>
+        <div id="book-list"></div>
+
+        <div id="pagination" style="display: none">
+          <label
+            ><input type="radio" name="page" value="1" checked />Page 1</label
+          >
+          <label><input type="radio" name="page" value="2" />Page 2</label>
+          <label><input type="radio" name="page" value="3" />Page 3</label>
+          <label><input type="radio" name="page" value="4" />Page 4</label>
+        </div>
+      </div>
+      <p class="return-home"><a href="index.html">Return Home</a></p>
+    </div>
+
+    <script>
+      $(document).ready(function () {
         let listOfBooks = [];
         const booksPerPage = 10;
 
         function renderPage(number) {
-            const start = (number - 1) * booksPerPage;
-            const end = start + booksPerPage;
-            const displayedBooks = listOfBooks.slice(start, end);
+          const start = (number - 1) * booksPerPage;
+          const end = start + booksPerPage;
+          const displayedBooks = listOfBooks.slice(start, end);
 
-            $("#book-list").empty();
+          $("#book-list").empty();
 
-            
-            displayedBooks.forEach(function(book) {
+          displayedBooks.forEach(function (book) {
             const bookInfo = book.volumeInfo;
             let title = bookInfo.title || "No Title";
             let authors = "Unknown";
             if (bookInfo.authors && bookInfo.authors.length > 0) {
-                authors = bookInfo.authors.join(", ");
+              authors = bookInfo.authors.join(", ");
             }
 
             let image = "";
             if (bookInfo.imageLinks && bookInfo.imageLinks.thumbnail) {
-                image = bookInfo.imageLinks.thumbnail;
+              image = bookInfo.imageLinks.thumbnail;
             }
 
             let link = `bookDetails.html?id=${book.id}`;
@@ -170,44 +171,42 @@
             `;
 
             $("#book-list").append(booklistHTML);
-            });
+          });
         }
 
         $("#searchButton").on("click", function () {
-            const searchTerm = $("#searchInput").val();
-            const baseURL = "https://www.googleapis.com/books/v1/volumes?q=";
+          const searchTerm = $("#searchInput").val();
+          const baseURL = "https://www.googleapis.com/books/v1/volumes?q=";
 
-            const params = {
-                q: searchTerm,
-                maxResults: 40
-            }
-            const serviceURL = baseURL + $.param(params);
-            console.log("Constructed Service URL: ", serviceURL);
+          const params = {
+            q: searchTerm,
+            maxResults: 40,
+          };
+          const serviceURL = baseURL + $.param(params);
+          console.log("Constructed Service URL: ", serviceURL);
 
-            $("#book-list").html("<p>Loading</p>");
+          $("#book-list").html("<p>Loading</p>");
 
-      
-            $.getJSON(serviceURL, function(data) {
+          $.getJSON(serviceURL, function (data) {
             listOfBooks = data.items || [];
 
             if (listOfBooks.length === 0) {
-                $("#book-list").html("<p>There are no books.</p>");
-                return;
+              $("#book-list").html("<p>There are no books.</p>");
+              return;
             }
-            
+
             $("#pagination").show();
             renderPage(1);
-
-        }).fail(function() {
+          }).fail(function () {
             $("#book-list").html("<p>Error</p>");
-      });
-      })
+          });
+        });
 
-      $("input[name='page']").on("change", function () {
-        const page = parseInt($(this).val());
-        renderPage(page);
+        $("input[name='page']").on("change", function () {
+          const page = parseInt($(this).val());
+          renderPage(page);
+        });
       });
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>

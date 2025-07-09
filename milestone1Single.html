@@ -1,80 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Milestone 1 Single Book Data</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <style>
-    body {
-      font-family: 'Times New Roman', Times, serif, sans-serif;
-      margin: 15px;
-      background-color: #111111;
-      color: #ebe8e8
-    }
-    .container {
-      background: #111111;
-      padding: 20px;
-      border: 2px solid #cfcfcf;
-      max-width: 750px;
-      margin: auto;
-    }
-    img {
-      max-width: 150px;
-      float: right;
-      margin-left: 20px;
-    }
-    a {
-      color: #85e0ec;
-    }
-  </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Milestone 1 Single Book Data</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      body {
+        font-family: "Times New Roman", Times, serif, sans-serif;
+        margin: 15px;
+        background-color: #111111;
+        color: #ebe8e8;
+      }
+      .container {
+        background: #111111;
+        padding: 20px;
+        border: 2px solid #cfcfcf;
+        max-width: 750px;
+        margin: auto;
+      }
+      img {
+        max-width: 150px;
+        float: right;
+        margin-left: 20px;
+      }
+      a {
+        color: #85e0ec;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Milestone 1 Single Book Data</h1>
 
-  <h1>Milestone 1 Single Book Data</h1>
+    <div class="container" id="book"></div>
 
-  <div class="container" id="book">
-  </div>
+    <p><a href="index.html">Return Home</a></p>
 
-  <p><a href="index.html">Return Home</a></p>
+    <script>
+      $(document).ready(function () {
+        const bookUrl =
+          "https://www.googleapis.com/books/v1/volumes/Wfan6L9RGgYC";
 
-  <script>
-    $(document).ready(function() {
-      const bookUrl = "https://www.googleapis.com/books/v1/volumes/Wfan6L9RGgYC";
+        $.getJSON(bookUrl, function (data) {
+          const book = data.volumeInfo;
+          // pulls title and adds "No Title" if does not exist.
+          let title = book.title || "No Title";
 
-      $.getJSON(bookUrl, function(data) {
-        const book = data.volumeInfo;
-        // pulls title and adds "No Title" if does not exist.
-        let title = book.title || "No Title";
-        
-        //Sets base author value then checks api to add book author if it exists.
-        let authors = "Unknown";
-        if (book.authors) {
-          authors = book.authors.join(", ");
-        }
+          //Sets base author value then checks api to add book author if it exists.
+          let authors = "Unknown";
+          if (book.authors) {
+            authors = book.authors.join(", ");
+          }
 
-        // pulls description, adds "No description available" if doesnt exist.
-        let description = book.description || "No description available.";
+          // pulls description, adds "No description available" if doesnt exist.
+          let description = book.description || "No description available.";
 
-        //Sets base image value then chacks api for the thumbnail within imagelinks
-        let image = "";
-        if (book.imageLinks && book.imageLinks.thumbnail) {
-          image = book.imageLinks.thumbnail;
-        }
+          //Sets base image value then chacks api for the thumbnail within imagelinks
+          let image = "";
+          if (book.imageLinks && book.imageLinks.thumbnail) {
+            image = book.imageLinks.thumbnail;
+          }
 
-        //checks for link to book in api call and then has a base link as a fallback
-        let link = book.previewLink || "#";
-        //create html to append to book id
-        $("#book").html(`
+          //checks for link to book in api call and then has a base link as a fallback
+          let link = book.previewLink || "#";
+          //create html to append to book id
+          $("#book").html(`
           <h2>${title}</h2>
           <img src="${image}" alt="Cover">
           <p>Authors: ${authors}</p>
           <p>${description}</p>
           <p><a href="${link}" target="_blank">Preview this book</a></p>
         `);
-      }).fail(function() {
-        $("#book").html("<p>Error</p>");
+        }).fail(function () {
+          $("#book").html("<p>Error</p>");
+        });
       });
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
