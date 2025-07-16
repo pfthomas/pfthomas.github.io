@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Milestone 4: Book Search SPA</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.0/mustache.min.js"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+        max-width: 1000px;
+        margin: auto;
+        padding: 30px;
+        background-color: #121212;
+        color: #f0f0f0;
+      }
+      .controls {
+        margin-bottom: 20px;
+      }
+      input[type="text"] {
+        padding: 10px;
+        width: 300px;
+        border: none;
+        background: #222;
+        color: #f0f0f0;
+        font-size: 16px;
+        border-radius: 3px;
+      }
+      button {
+        padding: 10px 15px;
+        border: none;
+        background-color: #5e9165;
+        color: white;
+        font-size: 16px;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #8ace93;
+      }
+      .book {
+        background-color: #1c1c1c;
+        margin: 10px;
+        padding: 15px;
+        border: 1px solid #333;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+      }
+      .grid-view .book {
+        width: 30%;
+        float: left;
+      }
+      .list-view .book {
+        width: 100%;
+        flex-direction: row;
+        text-align: left;
+      }
+      .book img {
+        width: 80px;
+        height: auto;
+        margin-right: 15px;
+        border-radius: 4px;
+      }
+      .search-area {
+        margin-bottom: 30px;
+      }
+      #book-details {
+        display: none;
+        background-color: #1a1a1a;
+        padding: 20px;
+        margin-top: 30px;
+        border: 1px solid #444;
+        border-radius: 4px;
+      }
+      .pagination-btn {
+        margin: 5px;
+        padding: 6px 12px;
+        background: #333;
+        color: #f0f0f0;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+      .current-page {
+        border: 1px solid #8ace93;
+        border-radius: 3px;
+        font-weight: bold;
+      }
+      .clearfix::after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+      .book-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      .list-view .book-info {
+        align-items: flex-start;
+      }
+      .list-view .book img {
+        margin-top: 0;
+      }
+      .book-title {
+        font-size: 1.1em;
+        margin: 5px 0;
+      }
+
+      .book-author {
+        font-size: 0.9em;
+        color: #ccc;
+        margin: 0;
+      }
+      a {
+        color: #8ec6eb;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Milestone 4: Improved SPA UI</h1>
+
+    <div class="search-area">
+      <input type="text" id="searchInput" placeholder="Search books" />
+      <button id="searchButton">Search</button>
+      <button id="toggleView">Switch to List View</button>
+      <button id="toggleBookshelfView">Switch Bookshelf View</button>
+    </div>
+
+    <h2>Search Results</h2>
+    <div id="book-search" class="clearfix grid-view"></div>
+    <div id="pagination"></div>
+
+    <h2>Book Details</h2>
+    <div id="book-details"></div>
+
+    <h2>Public Bookshelf</h2>
+    <div id="bookshelfResults" class="clearfix grid-view"></div>
+
+    <script id="booktemplate" type="text/template">
+      {{#books}}
+      <div class="book" data-id="{{id}}">
+        <img src="{{img}}" alt="cover">
+        <div class ="book-info">
+            <h3 class="book-title">{{title}}</h3>
+            <p class="book-author">{{authors}}</p>
+        </div>
+      </div>
+      {{/books}}
+    </script>
+
+    <script id="detailsTemplate" type="text/template">
+      <div>
+        <h2>{{title}}</h2>
+        <h4>{{subtitle}}</h4>
+        <img src="{{img}}" alt="cover">
+        <p><strong>Authors:</strong> {{authors}}</p>
+        <p><strong>Publisher:</strong> {{publisher}}</p>
+        <p><strong>Description:</strong> {{description}}</p>
+        <a href="{{previewLink}}" target="_blank">Preview Book</a>
+        <button id="close-details">Close</button>
+      </div>
+    </script>
+
+    <script type="text/javascript">
+      $(function () {
+        let listOfBooks = [];
+        let currentView = "grid";
+        let bookshelfView = "grid";
+        let bookshelfBooks = [];
+        const booksPerPage = 10;
+
+        function displayBookResults(viewType, books) {
+          const template = $("#booktemplate").html();
+          const displayBooks = [];
+          (books || []).forEach(function (book) {
+            const info = book.volumeInfo;
+            displayBooks.push({
+              id: book.id,
+              title: info.title || "No Title",
+              img: info.imageLinks?.thumbnail || "",
+              authors: info.authors?.join(", ") || "Unknown",
+            });
+          });
+
+          const html = Mustache.render(template, { books: displayBooks });
+          $("#book-search")
+            .removeClass("grid-view list-view")
+            .addClass(viewType + "-view")
+            .html(html);
+        }
+
+        function displayBookshelf() {
+          const html = Mustache.render($("#booktemplate").html(), {
+            books: bookshelfBooks,
+          });
+
+          $("#bookshelfResults")
+            .removeClass("grid-view list-view")
+            .addClass(bookshelfView + "-view")
+            .html(html);
+        }
+
+        function showBookList(page) {
+          const start = (page - 1) * booksPerPage;
+          const displayedBooks = listOfBooks.slice(start, start + booksPerPage);
+          displayBookResults(currentView, displayedBooks);
+        }
+
+        function displayPages() {
+          const totalPages = Math.ceil(listOfBooks.length / booksPerPage);
+          $("#pagination").empty();
+          for (let i = 1; i <= totalPages; i++) {
+            $("#pagination").append(
+              `<button class="pagination-btn" data-page="${i}">${i}</button>`
+            );
+          }
+          $(".pagination-btn").first().addClass("current-page");
+        }
+
+        function showBookDetails(bookId) {
+          $("#book-details").html("<p>Loading...</p>").show();
+          $.getJSON(
+            `https://www.googleapis.com/books/v1/volumes/${bookId}`,
+            function (data) {
+              const info = data.volumeInfo;
+              const detailTemplate = $("#detailsTemplate").html();
+              const detailInfo = {
+                title: info.title || "No Title",
+                subtitle: info.subtitle || "",
+                authors: info.authors?.join(", ") || "Unknown",
+                img: info.imageLinks?.thumbnail || "",
+                publisher: info.publisher || "Unknown Publisher",
+                description: info.description || "No description available.",
+                previewLink: info.previewLink || "#",
+              };
+              const html = Mustache.render(detailTemplate, detailInfo);
+              $("#book-details").html(html);
+            }
+          );
+        }
+
+        $("#searchButton").on("click", function () {
+          const searchTerm = $("#searchInput").val();
+          const baseURL = "https://www.googleapis.com/books/v1/volumes?q=";
+          if (!searchTerm) return;
+          $.getJSON(
+            `${baseURL}${searchTerm}&startIndex=0&maxResults=40`,
+            function (data) {
+              listOfBooks = data.items || [];
+              if (!listOfBooks.length) {
+                $("#book-search").html("<p>No results found.</p>");
+                return;
+              }
+              displayPages();
+              showBookList(1);
+            }
+          );
+        });
+
+        $("#pagination").on("click", ".pagination-btn", function () {
+          $(".pagination-btn").removeClass("current-page");
+          $(this).addClass("current-page");
+          const page = parseInt($(this).data("page"));
+          showBookList(page);
+        });
+
+        $("#book-search, #bookshelfResults").on("click", ".book", function () {
+          const bookId = $(this).data("id");
+          showBookDetails(bookId);
+        });
+
+        $("#book-details").on("click", "#close-details", function () {
+          $("#book-details").hide().empty();
+        });
+
+        $("#toggleView").on("click", function () {
+          currentView = currentView === "grid" ? "list" : "grid";
+          $(this).text(
+            currentView === "grid"
+              ? "Switch to List View"
+              : "Switch to Grid View"
+          );
+          showBookList(1);
+        });
+
+        $("#toggleBookshelfView").on("click", function () {
+          bookshelfView = bookshelfView === "grid" ? "list" : "grid";
+          displayBookshelf();
+        });
+
+        // Load public bookshelf
+        const apiURL = `https://www.googleapis.com/books/v1/volumes?q=tolkien`;
+        $.getJSON(apiURL, function (data) {
+          console.log("API call: ", data);
+
+          bookshelfBooks = []; // Clear or initialize the array
+
+          (data.items || []).forEach(function (book) {
+            const info = book.volumeInfo;
+            bookshelfBooks.push({
+              id: book.id,
+              title: info.title || "No Title",
+              img: info.imageLinks?.thumbnail || "",
+              authors: info.authors?.join(", ") || "Unknown",
+            });
+          });
+
+          displayBookshelf();
+        });
+      });
+    </script>
+  </body>
+</html>
