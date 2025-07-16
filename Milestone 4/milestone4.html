@@ -56,11 +56,23 @@
       .grid-view .book {
         width: 31%;
         padding: 10px;
-        float: none;
+        background-color: #1c1c1c;
+        border: 1px solid #333;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
       }
       .list-view .book {
-        width: 100%;
+        display: flex;
         flex-direction: row;
+        align-items: flex-start;
+        width: 100%;
+        margin-bottom: 10px;
+        background-color: #1c1c1c;
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 10px;
         text-align: left;
       }
       .book img {
@@ -107,10 +119,20 @@
       }
 
       .list-view .book-info {
-        align-items: flex-start;
+        flex: 1;
       }
       .list-view .book img {
-        margin-top: 0;
+        flex-shrink: 0;
+        width: 70px;
+        height: auto;
+        margin-right: 15px;
+      }
+      .list-view .book-info h3 {
+        margin: 0 0 5px 0;
+      }
+      .list-view .book-info p {
+        margin: 0;
+        color: #ccc;
       }
       .book-title {
         font-size: 1.1em;
