@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Movie Database Term Project</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.0/mustache.min.js"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+        margin: 20px;
+        background-color: #121212;
+        color: #f0f0f0;
+      }
+      input[type="text"],
+      select {
+        padding: 10px;
+        margin-right: 5px;
+        background: #222;
+        color: #f0f0f0;
+        border: none;
+        border-radius: 3px;
+      }
+      button {
+        padding: 10px 15px;
+        background-color: #5e9165;
+        border: none;
+        border-radius: 3px;
+        color: white;
+        cursor: pointer;
+        margin-right: 5px;
+      }
+      button:hover {
+        background-color: #8ace93;
+      }
+      .movie-card {
+        background-color: #1c1c1c;
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 10px;
+        margin: 10px;
+        display: inline-block;
+        width: 200px;
+        vertical-align: top;
+        text-align: center;
+      }
+      .movie-card img {
+        max-width: 100%;
+        border-radius: 4px;
+      }
+      .movie-detail,
+      .person-detail {
+        background-color: #1a1a1a;
+        padding: 20px;
+        border-radius: 4px;
+        margin-top: 20px;
+        display: none;
+      }
+      .cast-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .cast-member {
+        background-color: #2a2a2a;
+        padding: 10px;
+        border-radius: 3px;
+        cursor: pointer;
+        width: 120px;
+        text-align: center;
+      }
+      .cast-member img {
+        width: 100%;
+        border-radius: 4px;
+      }
+      .grid-view .movie-card {
+        width: 200px;
+        display: inline-block;
+        vertical-align: top;
+        text-align: center;
+      }
+
+      .list-view .movie-card {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        text-align: left;
+        gap: 15px;
+      }
+
+      .list-view .movie-card img {
+        width: 100px;
+      }
+      @media (max-width: 768px) {
+        .grid-view .book {
+          width: 47%;
+        }
+      }
+
+      @media (max-width: 500px) {
+        .grid-view .book {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Movie Database Term Project</h1>
+
+    <div class="search-area">
+      <input type="text" id="searchInput" placeholder="Search movies" />
+      <button id="searchButton">Search</button>
+      <button id="popularButton">Popular</button>
+      <button id="nowPlayingButton">Now Playing</button>
+      <button id="toggleView">Switch to List View</button>
+
+      <select id="genreSelect">
+        <option value="">Discover by Genre</option>
+        <option value="28">Action</option>
+        <option value="35">Comedy</option>
+        <option value="18">Drama</option>
+        <option value="10749">Romance</option>
+      </select>
+
+      <select id="sortSelect">
+        <option value="">Sort by...</option>
+        <option value="title-asc">Title (A–Z)</option>
+        <option value="rating-desc">Rating (High–Low)</option>
+        <option value="release-desc">Release Date (Newest)</option>
+      </select>
+    </div>
+
+    <div id="movie-results" class="grid-view"></div>
+    <div id="pagination"></div>
+
+    <div id="movie-detail" class="movie-detail"></div>
+    <div id="person-detail" class="person-detail"></div>
+
+    <script id="movie-template" type="text/template">
+      {{#movies}}
+      <div class="movie-card" data-id="{{id}}">
+        <img src="https://image.tmdb.org/t/p/w200{{poster_path}}" alt="{{title}} poster">
+        <h3>{{title}}</h3>
+        <p>Rating: {{vote_average}}</p>
+      </div>
+      {{/movies}}
+    </script>
+
+    <script id="movie-detail-template" type="text/template">
+      <h2>{{title}}</h2>
+      <img src="https://image.tmdb.org/t/p/w300{{poster_path}}" alt="{{title}}">
+      <p><strong>Overview:</strong> {{overview}}</p>
+      <p><strong>Release Date:</strong> {{release_date}}</p>
+      <h3>Cast</h3>
+      <div class="cast-list">
+        {{#cast}}
+        <div class="cast-member" data-id="{{id}}">
+          <img src="https://image.tmdb.org/t/p/w185{{profile_path}}" alt="{{name}}">
+          <p>{{name}}</p>
+          <p style="font-size: 13px; color: #aaa">as {{character}}</p>
+        </div>
+        {{/cast}}
+      </div>
+      <button id="close-detail">Close</button>
+    </script>
+
+    <script id="person-detail-template" type="text/template">
+      <h2>{{name}}</h2>
+      <img src="https://image.tmdb.org/t/p/w300{{profile_path}}" alt="{{name}}">
+      <p><strong>Birthday:</strong> {{birthday}}</p>
+      <p><strong>Place of Birth:</strong> {{place_of_birth}}</p>
+      <p><strong>Biography:</strong> {{biography}}</p>
+      <button id="close-person">Close</button>
+    </script>
+
+    <script type="text/javascript">
+      const apiKey = "b9582f94285b5b3f50888b0771caf72d";
+      let movieResults = [];
+      let currentView = "grid";
+      let moviesPerPage = 9;
+      let currentPage = 1;
+
+      function displayMovies(viewType, movies) {
+        const template = $("#movie-template").html();
+        const html = Mustache.render(template, { movies });
+        $("#movie-results")
+          .removeClass("grid-view list-view")
+          .addClass(viewType + "-view")
+          .html(html);
+      }
+
+      function showMoviePage(page) {
+        currentPage = page;
+        const start = (page - 1) * moviesPerPage;
+        const end = start + moviesPerPage;
+        const displayed = movieResults.slice(start, end);
+        displayMovies(currentView, displayed);
+      }
+
+      function displayPages() {
+        const totalPages = Math.ceil(movieResults.length / moviesPerPage);
+        $("#pagination").empty();
+        for (let i = 1; i <= totalPages; i++) {
+          $("#pagination").append(
+            `<button class="pagination-btn" data-page="${i}">${i}</button>`
+          );
+        }
+        $(".pagination-btn").first().addClass("current-page");
+      }
+
+      function sortMovies(sortType) {
+        if (!sortType || !movieResults.length) return;
+        if (sortType === "title-asc") {
+          movieResults.sort((a, b) =>
+            (a.title || "").localeCompare(b.title || "")
+          );
+        } else if (sortType === "rating-desc") {
+          movieResults.sort(
+            (a, b) => (b.vote_average || 0) - (a.vote_average || 0)
+          );
+        } else if (sortType === "release-desc") {
+          movieResults.sort(
+            (a, b) => new Date(b.release_date) - new Date(a.release_date)
+          );
+        }
+        displayPages();
+        showMoviePage(1);
+      }
+
+      function searchByKeyword(searchTerm) {
+        const baseURL = "https://api.themoviedb.org/3/search/movie";
+        const params = {
+          api_key: apiKey,
+          query: searchTerm,
+          language: "en-US",
+          page: 1,
+        };
+
+        $.getJSON(baseURL, params, function (data) {
+          movieResults = data.results || [];
+          if (!movieResults.length) {
+            $("#movie-results").html("<p>No results found.</p>");
+            return;
+          }
+          displayPages();
+          showMoviePage(1);
+        });
+      }
+
+      function discoverByGenre(genreId) {
+        const baseURL = "https://api.themoviedb.org/3/discover/movie";
+        const params = {
+          api_key: apiKey,
+          with_genres: genreId,
+          language: "en-US",
+          sort_by: "popularity.desc",
+          page: 1,
+        };
+
+        $.getJSON(baseURL, params, function (data) {
+          movieResults = data.results || [];
+          if (!movieResults.length) {
+            $("#movie-results").html("<p>No genre results found.</p>");
+            return;
+          }
+          displayPages();
+          showMoviePage(1);
+        });
+      }
+
+      function fetchPopularMovies() {
+        $.getJSON(
+          `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`,
+          function (data) {
+            movieResults = data.results || [];
+            displayPages();
+            showMoviePage(1);
+          }
+        );
+      }
+
+      function showMovieDetail(movieId) {
+        const detailURL = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&language=en-US`;
+        const castURL = `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${apiKey}`;
+
+        $.when($.getJSON(detailURL), $.getJSON(castURL)).done(function (
+          detailData,
+          castData
+        ) {
+          const info = detailData[0];
+          const cast = castData[0].cast.slice(0, 8);
+          const template = $("#movie-detail-template").html();
+          const html = Mustache.render(template, {
+            ...info,
+            cast: cast.map((c) => ({
+              id: c.id,
+              name: c.name,
+              character: c.character,
+              profile_path: c.profile_path || "",
+            })),
+          });
+          $("#movie-detail").html(html).show();
+        });
+      }
+
+      function showPersonDetail(personId) {
+        const personURL = `https://api.themoviedb.org/3/person/${personId}?api_key=${apiKey}&language=en-US`;
+
+        $.getJSON(personURL, function (data) {
+          const template = $("#person-detail-template").html();
+          const html = Mustache.render(template, data);
+          $("#person-detail").html(html).show();
+        });
+      }
+
+      $(function () {
+        $("#searchButton").on("click", function () {
+          const searchTerm = $("#searchInput").val().trim();
+          if (searchTerm) {
+            searchByKeyword(searchTerm);
+          }
+        });
+
+        $("#popularButton").on("click", function () {
+          fetchPopularMovies();
+        });
+
+        $("#genreSelect").on("change", function () {
+          const selectedGenre = $(this).val();
+          if (selectedGenre) {
+            discoverByGenre(selectedGenre);
+          }
+        });
+
+        $("#sortSelect").on("change", function () {
+          const selectedSort = $(this).val();
+          sortMovies(selectedSort);
+        });
+
+        $("#toggleView").on("click", function () {
+          currentView = currentView === "grid" ? "list" : "grid";
+          $(this).text(
+            currentView === "grid"
+              ? "Switch to List View"
+              : "Switch to Grid View"
+          );
+          showMoviePage(currentPage);
+        });
+
+        $("#pagination").on("click", ".pagination-btn", function () {
+          $(".pagination-btn").removeClass("current-page");
+          $(this).addClass("current-page");
+          const page = parseInt($(this).data("page"));
+          showMoviePage(page);
+        });
+
+        $("#movie-results").on("click", ".movie-card", function () {
+          const movieId = $(this).data("id");
+          showMovieDetail(movieId);
+        });
+
+        $("#movie-detail").on("click", "#close-detail", function () {
+          $("#movie-detail").hide().empty();
+          $("#person-detail").hide().empty();
+        });
+
+        $("#movie-detail").on("click", ".cast-member", function () {
+          const personId = $(this).data("id");
+          showPersonDetail(personId);
+        });
+
+        $("#person-detail").on("click", "#close-person", function () {
+          $("#person-detail").hide().empty();
+        });
+
+        $("#nowPlayingButton").on("click", function () {
+          const nowPlayingURL = `https://api.themoviedb.org/3/movie/now_playing?api_key=${apiKey}&language=en-US&page=1`;
+          $.getJSON(nowPlayingURL, function (data) {
+            movieResults = data.results || [];
+            if (!movieResults.length) {
+              $("#movie-results").html("<p>No now playing movies found.</p>");
+              return;
+            }
+            displayPages();
+            showMoviePage(1);
+          });
+        });
+        fetchPopularMovies();
+      });
+    </script>
+  </body>
+</html>
+
+<!-- const apiKey = "b9582f94285b5b3f50888b0771caf72d"; -->
